@@ -4,6 +4,7 @@ To Do
 - Multi-thread
 - 2 player match testing
 - 4 player match testing
+- Undock functionality
 
 
 

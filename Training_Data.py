@@ -4,7 +4,7 @@ import time
 ship_requirement = 10
 damage_requirement = 1000
 
-iterations = 5000
+iterations = 1
 
 
 def get_ships(data):

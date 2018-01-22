@@ -352,7 +352,7 @@ while True:
 
 
 
-            except Exception as e:
+            except BaseException as e:
                 logging.info(str(e))
 
             with open("c{}_input.vec".format(VERSION),"a") as f:
@@ -364,7 +364,7 @@ while True:
                 f.write('\n')
 
         except Exception as e:
-            logging.info(str(e) + str(' 360'))
+            logging.info(str(e))
 
     game.send_command_queue(command_queue)
     # TURN END
