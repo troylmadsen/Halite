@@ -390,7 +390,7 @@ def processShip(ship):
 
 
             # IDLE FOR A TURN #
-            if np.argmax(output_vector) == 3: #[0,0,0,1]
+            elif np.argmax(output_vector) == 3: #[0,0,0,1]
                 # Do nothing
                 # Remove plans so that a new action may be chosen next turn
                 try:
