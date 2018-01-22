@@ -97,6 +97,9 @@ while True:
     # Commands to control ships this turn to be sent to server
     command_queue = []
 
+    #FIXME
+    logging.info("1")
+
     # Gather info for friendly, all, an enemy ships
     team_ships = game_map.get_me().all_ships()
     all_ships = game_map._all_ships()
@@ -117,7 +120,8 @@ while True:
     empty_planet_sizes = {}
     our_planet_sizes = {}
     enemy_planet_sizes = {}
-
+    #FIXME
+    logging.info("2")
     for p in game_map.all_planets():
         radius = p.radius
         if not p.is_owned():
@@ -136,7 +140,8 @@ while True:
     empty_planet_keys = sorted([k for k in empty_planet_sizes])[::-1]
     our_planet_keys = sorted([k for k in our_planet_sizes])[::-1]
     enemy_planet_keys= sorted([k for k in enemy_planet_sizes])[::-1]
-
+    #FIXME
+    logging.info("3")
     # Fill queue with ships to process by daemons
     for ship in game_map.get_me().all_ships():
         q.put(ship)
@@ -166,7 +171,8 @@ def processShip(ship):
         #FIXME unused
         # Get the ship ID
         shipid = ship.id
-
+        #FIXME
+        logging.info("4")
         # Determine if the ship should changed its action
         change = False
         if random.randint(1,100) <= PCT_CHANGE_CHANCE:
@@ -201,7 +207,8 @@ def processShip(ship):
         largest_empty_planet_distances = []
         largest_our_planet_distances = []
         largest_enemy_planet_distances = []
-
+        #FIXME
+        logging.info("5")
         for i in range(HM_ENT_FEATURES):
             try: largest_empty_planet_distances.append(key_by_value(entities_by_distance, empty_planet_sizes[empty_planet_keys[i]]))
             except:largest_empty_planet_distances.append(-99)
@@ -226,7 +233,8 @@ def processShip(ship):
                         fix_data(largest_our_planet_distances),
                         fix_data(largest_enemy_planet_distances)]
 
-
+        #FIXME
+        logging.info("6")
         # Input vector for the neural network
         input_vector = []
 
@@ -248,6 +256,8 @@ def processShip(ship):
         # If we have too many ships to process in a timely manner, dispose
         # of excess ships
         if my_ship_count > DESIRED_SHIP_COUNT:
+            #FIXME
+            logging.info("7")
             '''ATTACK: [1,0,0,0]'''
 
             output_vector = NUM_ACTIONS*[0] #[0,0,0,0]
@@ -256,6 +266,8 @@ def processShip(ship):
 
         # Random chance to change plans or assign a plan
         elif change or ship.id not in ship_plans:
+            #FIXME
+            logging.info("8")
             '''
             pick new "plan"
             '''
@@ -264,6 +276,8 @@ def processShip(ship):
             ship_plans[ship.id] = output_vector
 
         else:
+            #FIXME
+            logging.info("9")
             '''continue to execute existing plan'''
             output_vector = ship_plans[ship.id]
 
@@ -273,6 +287,8 @@ def processShip(ship):
 
             # ATTACK ENEMY SHIP #
             if np.argmax(output_vector) == 0: #[1,0,0,0]
+                #FIXME
+                logging.info("10")
                 '''
                 type: 0
                 Find closest enemy ship, and attack!
@@ -291,6 +307,8 @@ def processShip(ship):
 
             # MINE ONE OF OUR PLANETS #
             elif np.argmax(output_vector) == 1: #[0,1,0,0]
+                #FIXME
+                logging.info("11")
                 '''
                 type: 1
                 Mine closest already-owned planet
@@ -355,6 +373,8 @@ def processShip(ship):
 
             # FIND AND MINE AN EMPTY PLANET #
             elif np.argmax(output_vector) == 2: #[0,0,1,0]
+                #FIXME
+                logging.info("12")
                 '''
                 type: 2
                 Mine an empty planet.
@@ -391,6 +411,8 @@ def processShip(ship):
 
             # IDLE FOR A TURN #
             if np.argmax(output_vector) == 3: #[0,0,0,1]
+                #FIXME
+                logging.info("13")
                 # Do nothing
                 # Remove plans so that a new action may be chosen next turn
                 try:
@@ -402,12 +424,14 @@ def processShip(ship):
 
         except Exception as e:
             logging.info(str(e))
-
+        #FIXME
+        logging.info("14")
         with input_lock:
             with open("c{}_input.vec".format(VERSION),"a") as f:
                 f.write(str( [round(item,3) for item in input_vector] ))
                 f.write('\n')
-
+        #FIXME
+        logging.info("15")
         with out_lock:
             with open("c{}_out.vec".format(VERSION),"a") as f:
                 f.write(str(output_vector))
