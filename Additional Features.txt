@@ -1,5 +1,5 @@
 To Do
-- Non-entity-based movement (ie movement without a set destination)
+- Free movement (ie movement without an entity as the detination)
 - Uncap ship count
 - Multi-thread
 - 2 player match testing
