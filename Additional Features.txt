@@ -5,6 +5,8 @@ To Do
 - 2 player match testing
 - 4 player match testing
 - Undock functionality
+- Add flee ability by looking at number of close friendly ships to Number
+    of close enemy ships - Allows for effective baiting away of enemy ships
 
 
 

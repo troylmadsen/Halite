@@ -10,8 +10,8 @@ batch_size = 128
 epochs = 10
 test_size = 5000
 
-in_model = 'model_checkpoint_{}_batch_{}_epochs.h5'.format(0,0)
-out_model = 'model_checkpoint_{}_batch_{}_epochs.h5'.format(batch_size, epochs)
+in_model = 'model_checkpoint_{}_batch_{}_epochs.h5py'.format(0,0)
+out_model = 'model_checkpoint_{}_batch_{}_epochs.h5py'.format(batch_size, epochs)
 
 load_prev_model = False
 
@@ -37,31 +37,36 @@ with open("train.out","r") as f:
 attack_enemy = []
 mine_our_planet = []
 mine_empty_planet = []
+idle = []
 
 print("balancing data...")
 for n, _ in tqdm(enumerate(train_in)):
     input_layer = train_in[n]
     output_layer = train_out[n]
 
-    if output_layer == [1,0,0]:
+    if output_layer == [1,0,0,0]:
         attack_enemy.append([input_layer, output_layer])
-    elif output_layer == [0,1,0]:
+    elif output_layer == [0,1,0,0]:
         mine_our_planet.append([input_layer, output_layer])
-    elif output_layer == [0,0,1]:
+    elif output_layer == [0,0,1,0]:
         mine_empty_planet.append([input_layer, output_layer])
+    elif output_layer == [0,0,0,1]:
+        idle.append([input_layer, output_layer])
 
-print(len(attack_enemy), len(mine_our_planet), len(mine_empty_planet))
-shortest = min(len(attack_enemy), len(mine_our_planet), len(mine_empty_planet))
+print(len(attack_enemy), len(mine_our_planet), len(mine_empty_planet), len(idle))
+shortest = min(len(attack_enemy), len(mine_our_planet), len(mine_empty_planet), len(idle))
 
 random.shuffle(attack_enemy)
 random.shuffle(mine_our_planet)
 random.shuffle(mine_empty_planet)
+random.shuffle(idle)
 
 attack_enemy = attack_enemy[:shortest]
 mine_our_planet = mine_our_planet[:shortest]
 mine_empty_planet = mine_empty_planet[:shortest]
+idle = idle[:shortest]
 
-print(len(attack_enemy), len(mine_our_planet), len(mine_empty_planet))
+print(len(attack_enemy), len(mine_our_planet), len(mine_empty_planet), len(idle))
 
 all_choices = attack_enemy + mine_our_planet + mine_empty_planet
 random.shuffle(all_choices)
