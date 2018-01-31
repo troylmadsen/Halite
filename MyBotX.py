@@ -14,10 +14,10 @@ tf.logging.set_verbosity(tf.logging.ERROR)
 
 # This limits the amount of GPU memory that can be used by
 # tensorflow to allow 2 bots to compete against each other
-from keras.backend.tensorflow_backend import set_session
-config = tf.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.4
-set_session(tf.Session(config=config))
+#from keras.backend.tensorflow_backend import set_session
+#config = tf.ConfigProto()
+#config.gpu_options.per_process_gpu_memory_fraction = 0.4
+#set_session(tf.Session(config=config))
 
 model = load_model('model_checkpoint_128_batch_10_epochs.h5py')
 

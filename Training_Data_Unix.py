@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import time
@@ -29,7 +29,7 @@ for num in range(iterations):
             p2_pct = round(player_2_wins/(player_1_wins+player_2_wins)*100.0, 2)
             print("Player 1 win: {}%; Player 2 win: {}%.".format(p1_pct, p2_pct))
 
-        os.system('./halite -d "360 240" "python MyBot-1.py" "python MyBot-2.py" >> data.gameout')
+        os.system('./halite -d "360 240" "python3 MyBot.py" "python3 MyBotX.py" >> data.gameout')
 
         with open('data.gameout', 'r') as f:
             contents = f.readlines()
