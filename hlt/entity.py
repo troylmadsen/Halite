@@ -65,6 +65,24 @@ class Entity:
 
         return Position(x, y)
 
+    def furthest_point_away_from(self, target, min_distance=3):
+        """
+        Find the furtheset point away from the given ship from the given target,
+        outside its given radius, with an added fudge of min_distance.
+
+        :param Entity target: The target to compare against
+        :param int min_distance: Minimum distance specified from the object's outer radius
+        :return: The furthests point's coordinates
+        :rtype: Position
+        """
+
+        angle = target.calculate_angle_between(self)
+        radius = target.radius + min_distance
+        x = target.x + radius * math.cos(math.radians(angle + 180))
+        y = target.y + radius * math.sin(math.radians(angle + 180))
+
+        return Position(x, y)
+
     @abc.abstractmethod
     def _link(self, players, planets):
         pass
@@ -206,7 +224,7 @@ class Planet(Entity):
 class Ship(Entity):
     """
     A ship in the game.
-    
+
     :ivar id: The ship ID.
     :ivar x: The ship x-coordinate.
     :ivar y: The ship y-coordinate.

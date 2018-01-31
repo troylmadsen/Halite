@@ -5,14 +5,30 @@ from collections import OrderedDict
 import os
 import random
 
+import keras
+import tensorflow as tf
+from keras.models import load_model
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '99'
+tf.logging.set_verbosity(tf.logging.ERROR)
+
+# This limits the amount of GPU memory that can be used by
+# tensorflow to allow 2 bots to compete against each other
+from keras.backend.tensorflow_backend import set_session
+config = tf.ConfigProto()
+config.gpu_options.per_process_gpu_memory_fraction = 0.4
+set_session(tf.Session(config=config))
+
+model = load_model('model_checkpoint_128_batch_10_epochs.h5py')
+
 # The running version of the bot
-VERSION = 1
+VERSION = 4
 
 # Number of feature per entity to track
 HM_ENT_FEATURES = 5
 
 # Chance of a random behavior modification
-PCT_CHANGE_CHANCE = 30
+PCT_CHANGE_CHANCE = 40
 
 # Number of ships to maintain
 # Too many results in a timeout
@@ -217,8 +233,13 @@ while True:
                 '''
                 pick new "plan"
                 '''
-                output_vector = NUM_ACTIONS*[0]
-                output_vector[random.randint(0,NUM_ACTIONS-1)] = 1
+                input_vector = [round(item,3) for item in input_vector]
+                output_vector = model.predict(np.array([input_vector]))[0]
+                output_max = np.argmax(output_vector)
+                argmax_vector = NUM_ACTIONS*[0]
+                argmax_vector[output_max] = 1
+                output_vector = argmax_vector
+                logging.info(output_max)
                 ship_plans[ship.id] = output_vector
 
             else:

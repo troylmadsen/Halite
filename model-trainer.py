@@ -35,40 +35,45 @@ with open("train.out","r") as f:
     print("done train out")
 
 attack_enemy = []
-mine_our_planet = []
-mine_empty_planet = []
+mine_planet = []
 idle = []
+flee = []
+cluster = []
 
 print("balancing data...")
 for n, _ in tqdm(enumerate(train_in)):
     input_layer = train_in[n]
     output_layer = train_out[n]
 
-    if output_layer == [1,0,0,0]:
+    if output_layer == [1,0,0,0,0]:
         attack_enemy.append([input_layer, output_layer])
-    elif output_layer == [0,1,0,0]:
-        mine_our_planet.append([input_layer, output_layer])
-    elif output_layer == [0,0,1,0]:
-        mine_empty_planet.append([input_layer, output_layer])
-    elif output_layer == [0,0,0,1]:
+    elif output_layer == [0,1,0,0,0]:
+        mine_planet.append([input_layer, output_layer])
+    elif output_layer == [0,0,1,0,0]:
         idle.append([input_layer, output_layer])
+    elif output_layer == [0,0,0,1,0]:
+        flee.append([input_layer, output_layer])
+    elif output_layer == [0,0,0,0,1]:
+        cluster.append([input_layer, output_layer])
 
-print(len(attack_enemy), len(mine_our_planet), len(mine_empty_planet), len(idle))
-shortest = min(len(attack_enemy), len(mine_our_planet), len(mine_empty_planet), len(idle))
+print(len(attack_enemy), len(mine_planet), len(idle), len(flee), len(cluster))
+shortest = min(len(attack_enemy), len(mine_planet), len(idle), len(flee), len(cluster))
 
 random.shuffle(attack_enemy)
-random.shuffle(mine_our_planet)
-random.shuffle(mine_empty_planet)
+random.shuffle(mine_planet)
 random.shuffle(idle)
+random.shuffle(flee)
+random.shuffle(cluster)
 
 attack_enemy = attack_enemy[:shortest]
-mine_our_planet = mine_our_planet[:shortest]
-mine_empty_planet = mine_empty_planet[:shortest]
+mine_planet = mine_planet[:shortest]
 idle = idle[:shortest]
+flee = flee[:shortest]
+cluster = cluster[:shortest]
 
-print(len(attack_enemy), len(mine_our_planet), len(mine_empty_planet), len(idle))
+print(len(attack_enemy), len(mine_planet), len(idle), len(flee), len(cluster))
 
-all_choices = attack_enemy + mine_our_planet + mine_empty_planet
+all_choices = attack_enemy + mine_planet + idle + flee + cluster
 random.shuffle(all_choices)
 
 train_in = []

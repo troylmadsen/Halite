@@ -19,7 +19,7 @@ PCT_CHANGE_CHANCE = 30
 DESIRED_SHIP_COUNT = 50
 
 # Number of actions available to the bot to issue to ship_plans
-NUM_ACTIONS = 4
+NUM_ACTIONS = 5
 
 # Creating game and beginning logging
 game = hlt.Game("TMasden{}".format(VERSION))
@@ -27,6 +27,9 @@ logging.info("TMasdenBot-{} Start".format(VERSION))
 
 # Current ship movement plans
 ship_plans = {}
+
+# # Current turn number for the bot
+# current_turn = -1
 
 # Storing the moves of the winning bot
 if os.path.exists("c{}_input.vec".format(VERSION)):
@@ -84,6 +87,9 @@ while True:
     # Number of players in the game for the bot to know
     remaining_players = len(game_map.all_players())
 
+    # # Increase the turn counter
+    # current_turn += 1
+
     # Gather all empty, friendly, and enemy planets
     empty_planet_sizes = {}
     our_planet_sizes = {}
@@ -129,7 +135,7 @@ while True:
             entities_by_distance = game_map.nearby_entities_by_distance(ship)
             entities_by_distance = OrderedDict(sorted(entities_by_distance.items(), key=lambda t: t[0]))
 
-            # Closes empty planets and their distancs
+            # Closest empty planets and their distances
             closest_empty_planets = [entities_by_distance[distance][0] for distance in entities_by_distance if isinstance(entities_by_distance[distance][0], hlt.entity.Planet) and not entities_by_distance[distance][0].is_owned()]
             closest_empty_planet_distances = [distance for distance in entities_by_distance if isinstance(entities_by_distance[distance][0], hlt.entity.Planet) and not entities_by_distance[distance][0].is_owned()]
 
@@ -194,15 +200,16 @@ while True:
                              hm_empty_planets,
                              hm_enemy_planets,
                              remaining_players]
+                             # current_turn]
 
             #TODO Maybe don't have this
             # If we have too many ships to process in a timely manner, dispose
             # of excess ships
             if my_ship_count > DESIRED_SHIP_COUNT:
-                '''ATTACK: [1,0,0,0]'''
+                '''ATTACK: [1,0,0,0,0]'''
 
-                output_vector = NUM_ACTIONS*[0] #[0,0,0,0]
-                output_vector[0] = 1 #[1,0,0,0]
+                output_vector = NUM_ACTIONS*[0] #[0,0,0,0,0]
+                output_vector[0] = 1 #[1,0,0,0,0]
                 ship_plans[ship.id] = output_vector
 
             # Random chance to change plans or assign a plan
@@ -222,7 +229,7 @@ while True:
             try:
 
                 # ATTACK ENEMY SHIP #
-                if np.argmax(output_vector) == 0: #[1,0,0,0]
+                if np.argmax(output_vector) == 0: #[1,0,0,0,0]
                     '''
                     type: 0
                     Find closest enemy ship, and attack!
@@ -239,27 +246,34 @@ while True:
 
 
 
-                # MINE ONE OF OUR PLANETS #
-                elif np.argmax(output_vector) == 1: #[0,1,0,0]
+                # MINE A PLANET #
+                elif np.argmax(output_vector) == 1: #[0,1,0,0,0]
                     '''
                     type: 1
-                    Mine closest already-owned planet
+                    Mine closest planet
                     '''
-                    if not isinstance(closest_my_planets[0], int):
-                        target =  closest_my_planets[0]
+                    # Determine closest planet
+                    target = None
+                    try:
+                        if 0 < closest_my_planets_distances[0] and closest_my_planets_distances[0] < closest_empty_planet_distances[0] and len(closest_my_planets[0]._docked_ship_ids) < closest_my_planets[0].num_docking_spots:
+                            target = closest_my_planets[0]
+                        else:
+                            target = closest_empty_planets[0]
+                    except:
+                        target = closest_empty_planets[0]
 
-                        if len(target._docked_ship_ids) < target.num_docking_spots:
-                            if ship.can_dock(target):
-                                command_queue.append(ship.dock(target))
-                            else:
-                                navigate_command = ship.navigate(
-                                            ship.closest_point_to(target),
-                                            game_map,
-                                            speed=int(hlt.constants.MAX_SPEED),
-                                            ignore_ships=False)
+                    # Mine if possible
+                    if ship.can_dock(target):
+                        command_queue.append(ship.dock(target))
+                    else:
+                        navigate_command = ship.navigate(
+                                    ship.closest_point_to(target),
+                                    game_map,
+                                    speed=int(hlt.constants.MAX_SPEED),
+                                    ignore_ships=False)
 
-                                if navigate_command:
-                                    command_queue.append(navigate_command)
+                        if navigate_command:
+                            command_queue.append(navigate_command)
 
                         # else:
                         #     #attack!
@@ -304,25 +318,25 @@ while True:
 
 
                 # FIND AND MINE AN EMPTY PLANET #
-                elif np.argmax(output_vector) == 2: #[0,0,1,0]
-                    '''
-                    type: 2
-                    Mine an empty planet.
-                    '''
-                    if not isinstance(closest_empty_planets[0], int):
-                        target =  closest_empty_planets[0]
-
-                        if ship.can_dock(target):
-                            command_queue.append(ship.dock(target))
-                        else:
-                            navigate_command = ship.navigate(
-                                        ship.closest_point_to(target),
-                                        game_map,
-                                        speed=int(hlt.constants.MAX_SPEED),
-                                        ignore_ships=False)
-
-                            if navigate_command:
-                                command_queue.append(navigate_command)
+                # elif np.argmax(output_vector) == 2: #[0,0,1,0,0,0]
+                #     '''
+                #     type: 2
+                #     Mine an empty planet.
+                #     '''
+                #     if not isinstance(closest_empty_planets[0], int):
+                #         target =  closest_empty_planets[0]
+                #
+                #         if ship.can_dock(target):
+                #             command_queue.append(ship.dock(target))
+                #         else:
+                #             navigate_command = ship.navigate(
+                #                         ship.closest_point_to(target),
+                #                         game_map,
+                #                         speed=int(hlt.constants.MAX_SPEED),
+                #                         ignore_ships=False)
+                #
+                #             if navigate_command:
+                #                 command_queue.append(navigate_command)
 
 
                     # else:
@@ -341,13 +355,51 @@ while True:
 
 
                 # IDLE FOR A TURN #
-                elif np.argmax(output_vector) == 3: #[0,0,0,1]
-                    # Do nothing
-                    # Remove plans so that a new action may be chosen next turn
+                elif np.argmax(output_vector) == 2: #[0,0,1,0,0]
+                    '''
+                    type: 2
+                    Do nothing and remove plans so that a new action may be
+                    chosen next turn
+                    '''
                     try:
                         del ship_plans[ship.id]
                     except:
                         pass
+
+
+                # FLEE FROM AN ENEMY SHIP #
+                elif np.argmax(output_vector) == 3: #[0,0,0,1,0]
+                    '''
+                    type: 3
+                    Flee from closest enemy ship
+                    '''
+                    if not isinstance(closest_enemy_ships[0], int):
+                        navigate_command = ship.navigate(
+                                    ship.furthest_point_away_from(closest_enemy_ships[0]),
+                                    game_map,
+                                    speed=int(hlt.constants.MAX_SPEED),
+                                    ignore_ships=False)
+
+                        if navigate_command:
+                            command_queue.append(navigate_command)
+
+
+                # MOVE TOWARDS FRIENDLY SHIPS #
+                elif np.argmax(output_vector) == 4: #[0,0,0,0,1]
+                    '''
+                    type: 4
+                    Moves towards the nearest friendly ship
+                    '''
+                    if not isinstance(closest_team_ships[0], int):
+                        navigate_command = ship.navigate(
+                                    ship.closest_point_to(closest_team_ships[0]),
+                                    game_map,
+                                    speed=int(hlt.constants.MAX_SPEED),
+                                    ignore_ships=False)
+
+                        if navigate_command:
+                            command_queue.append(navigate_command)
+
 
             except Exception as e:
                 logging.info(str(e))
