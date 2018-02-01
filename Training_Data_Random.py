@@ -7,7 +7,7 @@ import time
 ship_requirement = 10
 damage_requirement = 1000
 
-iterations = 2000
+iterations = 3000
 
 
 def get_ships(data):
@@ -33,8 +33,7 @@ for num in range(iterations):
             p2_pct = round(player_2_wins/(player_1_wins+player_2_wins)*100.0, 2)
             print("Player 1 win: {}%; Player 2 win: {}%.".format(p1_pct, p2_pct))
 
-        # os.system('halite.exe -d "360 240" "python MyBot-1.py" "python {}" >> data.gameout'.format(enemy_models[random.randint(0,len(enemy_models)-1)]))
-        os.system('halite.exe -d "360 240" "python MyBot-1.py" "python {}" >> data.gameout'.format(enemy_models[1]))
+        os.system('halite.exe -d "360 240" "python MyBot-1.py" "python {}" >> data.gameout'.format(enemy_models[random.randint(0,len(enemy_models)-1)]))
 
         with open('data.gameout', 'r') as f:
             contents = f.readlines()
