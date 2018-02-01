@@ -32,7 +32,7 @@ PCT_CHANGE_CHANCE = 30
 
 # Number of ships to maintain
 # Too many results in a timeout
-DESIRED_SHIP_COUNT = 100
+DESIRED_SHIP_COUNT = 50
 
 # Number of actions available to the bot to issue to ship_plans
 NUM_ACTIONS = 5
